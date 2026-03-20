@@ -281,7 +281,7 @@ export function BenchmarkSelector() {
             value={filters.industry}
             onValueChange={(val) => handleChange("industry", val)}
           >
-            <SelectTrigger className="border-border/50 bg-card hover:border-accent/50">
+            <SelectTrigger className="w-full border-border/50 bg-card hover:border-accent/50">
               <SelectValue placeholder="Select industry" />
             </SelectTrigger>
             <SelectContent>
