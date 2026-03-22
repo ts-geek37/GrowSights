@@ -13,6 +13,27 @@ import { Spinner } from "@/components/ui/spinner";
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 
+function formatInsight(content: string): {
+  bullets: string[];
+  closing?: string;
+} {
+  if (!content) return { bullets: [] };
+
+  // Split into sentences (handles ".", "?")
+  const sentences = content
+    .split(/(?<=[.?!])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  // Heuristic: last sentence = closing (CTA / brand line)
+  const closing =
+    sentences.length > 1 ? sentences[sentences.length - 1] : undefined;
+
+  const bullets = sentences.length > 1 ? sentences.slice(0, -1) : sentences;
+
+  return { bullets, closing };
+}
+
 export interface BenchmarkFilters {
   industry: string;
   turnover: string;
@@ -179,17 +200,37 @@ export function BenchmarkSelector() {
           </div>
         ) : (
           <>
-            {insight?.content && (
-              <div className="rounded-xl border border-border/50 bg-card p-6 space-y-2">
-                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
-                  Segment Insight
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {insight.content}
-                </p>
-              </div>
-            )}
+            {insight?.content &&
+              (() => {
+                const { bullets, closing } = formatInsight(insight.content);
 
+                return (
+                  <div className="rounded-xl border border-border/50 bg-card p-6 space-y-4">
+                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+                      Segment Insight
+                    </h3>
+
+                    {/* Bullet Points */}
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      {bullets.map((point, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span className="mt-1 text-accent">•</span>
+                          <span>{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Closing Line (CTA / branding) */}
+                    {closing && (
+                      <div className="pt-3 border-t border-border/50">
+                        <p className="text-sm font-medium text-foreground">
+                          {closing}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             {aggregates.length > 0 && (
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
